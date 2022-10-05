@@ -21,7 +21,6 @@ const db = mysql.createConnection(
 );
 
 function init() {
-    welcomeScreen();
     startApp();
 }
 
@@ -70,6 +69,16 @@ function viewDeparts() {
         startApp();
     });
 };
+function viewEmployees() {
+    db.query(`SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name AS department, role.salary, CONCAT(employee.first_name, ' ',employee.last_name) AS manager 
+    FROM employee INNER JOIN role ON employee.role_id = role.id 
+    INNER JOIN department on role.department_id = department.id 
+    LEFT JOIN employee manager ON manager.id = employee.manager_id`, function (err, res) {
+        if(err) throw err;
+        console.table('All Employees:', res);
+        startApp();
+    });
+};
 function viewRoles() {
     db.query('SELECT role.id, role.title, department.name, role.salary FROM role JOIN department ON role.department_id = department.id', function (err, res) {
         if(err) throw err;
@@ -77,3 +86,8 @@ function viewRoles() {
         startApp();
     });
 };
+
+app.listen(PORT, () => {
+    console.log(`Listening on port ${PORT}`);
+    init();
+});
